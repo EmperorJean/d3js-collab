@@ -1,54 +1,381 @@
 <!DOCTYPE html>
-<div id="container"></div>
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-<script type="module">
+<html>
 
-    // Declare the chart dimensions and margins.
-    const width = 640;
-    const height = 400;
-    const SLEEPMS = 0;
+<head>
+    <title>D3.js Circles</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    function getRandomInt(max) {
-        return Math.floor(Math.random() * max);
-    }
+<body>
+    <div id="master-container">
+        <div id="chart-container">
+            <div class="options-box">
+                <h3>Options</h3>
+                <div class="option">
+                    <label for="total-runs">Total Runs:</label>
+                    <input type="number" id="total-runs" name="total-runs" min="1" value="10">
+                </div>
+                <div class="option">
+                    <label for="balls-per-run">Balls per run:</label>
+                    <input type="number" step="1" id="balls-per-run" name="balls-per-run" min="1" value="100">
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="clear-after-run" name="clear-after-run">
+                    <label for="clear-after-run">Clear after run?</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="skip-first-run" name="skip-first-run">
+                    <label for="skip-first-run">Skip first run results?</label>
+                </div>
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+                <button id="run-button">Run Program</button>
+                <p>After clicking run, wait until chart appears before making changes and running again</p>
 
-    // Create the SVG container.
-    const svg = d3.create("svg")
-        .attr("width", width)
-        .attr("height", height);
+            </div>
+        </div>
+        <div id="container">
 
-    // Append the SVG element.
-    container.append(svg.node());
+            <div id="svgTamzid"></div>
+        </div>
+        <div id="names">
+            <h1>Tamzid</h1>
+            <h1>Jean</h1>
+            <h1>Alberto</h1>
+        </div>
 
-    let a = Date.now();
-    async function stuff() {
-        for (let i = 0; i < 100; i++) {
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script type="module">
 
-            let randX = getRandomInt(width);
-            let randY = getRandomInt(height);
-            let randRadius = getRandomInt(40) + 10;
-            svg.append("path")
-                .attr("transform", `translate(${randX},${randY})`)
-                .style("stroke", "black")
-                .style("fill", "yellow") 
-                .attr("d", d3.arc()({
-                    outerRadius: randRadius,
-                    startAngle: -Math.PI,
-                    endAngle: Math.PI
-                }));
+        // option stuff
+        const totalRunsInput = document.getElementById('total-runs');
+        const ballsPerRunInput = document.getElementById('balls-per-run');
+        const clearAfterRunCheckbox = document.getElementById('clear-after-run');
+        const skipFirstRunCheckbox = document.getElementById('skip-first-run');
+        const runButton = document.getElementById('run-button');
 
-            await sleep(SLEEPMS)
+        function getOptions() {
+            return {
+                totalRuns: parseInt(totalRunsInput.value, 10),
+                ballsPerRun: parseInt(ballsPerRunInput.value, 10),
+                clearAfterRun: clearAfterRunCheckbox.checked,
+                skipFirstRun: skipFirstRunCheckbox.checked
+            };
         }
-    }
 
-    await stuff()
+        totalRunsInput.addEventListener('change', () => {
+            const options = getOptions();
+            console.log('Total Runs changed:', options.totalRuns);
+        });
 
-    let b = Date.now();
+        ballsPerRunInput.addEventListener('change', () => {
+            const options = getOptions();
+            console.log('Balls per Run changed:', options.ballsPerRun);
+        });
 
-    console.log(`Program ran in: ${b - a} ms`);
+        clearAfterRunCheckbox.addEventListener('change', () => {
+            const options = getOptions();
+            console.log('Clear after Run:', options.clearAfterRun);
+        });
 
-</script>
+        skipFirstRunCheckbox.addEventListener('change', () => {
+            const options = getOptions();
+            console.log('Skip First Run:', options.skipFirstRun);
+        });
+
+        // Declare the chart dimensions and margins.
+        const WIDTH = 640;
+        const HEIGHT = 400;
+        const SLEEPMS = 0;
+        var x, y, radius;
+        var baseRadius = 40;
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Create the SVG container.
+        const svgJean = d3.create("svg")
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT);
+
+        // Create the SVG container.
+        const svgAlberto = d3.create("svg")
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT);
+
+
+        document.getElementById("container").append(svgJean.node());
+        document.getElementById("container").append(svgAlberto.node());
+
+        async function main() {
+            const options = getOptions();
+            var totalRuns = parseInt(options.totalRuns);
+            var maxBalls = parseInt(options.ballsPerRun);
+            var timesAlberto = [];
+            var timesJean = [];
+            var timesTamzid = [];
+            let peak = -1;
+            // remove old chart
+            clearAll()
+
+            // Append the SVG element.
+            async function runJean() {
+                for (let i = 0; i < maxBalls; i++) {
+                    x = getRandomInt(WIDTH);
+                    y = getRandomInt(HEIGHT);
+                    radius = getRandomInt(baseRadius) + 10;
+                    svgJean.append("path")
+                        .attr("transform", `translate(${x},${y})`)
+                        .style("stroke", "black")
+                        .style("fill", "yellow")
+                        .attr("d", d3.arc()({
+                            outerRadius: radius,
+                            startAngle: -Math.PI,
+                            endAngle: Math.PI
+                        }));
+
+                    await sleep(SLEEPMS)
+                }
+            }
+
+            async function runAlberto() {
+                var svg = d3.select("svgAlberto");
+                var circleCount = 0;
+
+                for (let i = 0; i < maxBalls; i++) {
+                    // Get random x and y coordinates within the SVG
+                    x = getRandomInt(WIDTH);
+                    y = getRandomInt(HEIGHT);
+
+                    // Add a circle to the SVG
+                    svgAlberto.append("circle")
+                        .attr("cx", x)
+                        .attr("cy", y)
+                        .attr("r", 40)
+                        .attr("fill", "purple");
+                    circleCount++;
+
+                    await sleep(SLEEPMS); // Sleep for 1 second
+                }
+            }
+
+            async function runTamzid() {
+                const maxCircles = 100;
+                let circleCount = 0;
+                const container = d3.select("#svgTamzid");
+
+                for (let i = 0; i < maxBalls; i++) {
+                    const size = Math.random() * 50 + 5; // Diameter between 5 and 55
+                    const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    let cx = getRandomInt(WIDTH);
+                    let cy = getRandomInt(HEIGHT);
+
+                    container.append("div")
+                        .style("left", `${cx}px`)
+                        .style("top", `${cy}px`)
+                        .style("width", `0px`)
+                        .style("height", `0px`)
+                        .style("background-color", color)
+                        .attr("class", "circle")
+                        .transition()
+                        .duration(SLEEPMS) // Animation duration
+                        .style("width", `${size}px`)
+                        .style("height", `${size}px`)
+                        .style("opacity", 1)
+                        .style("border-radius", "50%");
+
+                    circleCount++;
+                    await sleep(SLEEPMS); // Sleep for 1 millisecond
+                }
+            }
+
+            function clearEl(el, force) {
+                if (options.clearAfterRun || force) {
+                    if (el.node().tagName === 'svg') {
+                        el.selectAll("*").remove();
+                    } else {
+                        el.node().innerHTML = '';
+                    }
+                }
+            }
+
+            function clearAll(el) {
+                const c = document.getElementById("chart-container");
+                const ele = c.querySelector('svg');
+                if (ele) {
+                    c.removeChild(ele);
+                }
+                clearEl(d3.select(document.getElementById("svgTamzid")), true)
+                clearEl(svgAlberto, true)
+                clearEl(svgJean, true)
+            }
+
+
+            console.log(`Running Alberto's algo`);
+            for (let i = 0; i < totalRuns; i++) {
+                clearEl(svgAlberto, false);
+                let a = Date.now();
+                await runAlberto();
+                let b = Date.now();
+                peak = Math.max(peak, (b - a))
+                console.log(`Run ${i + 1}: Program ran in: ${b - a} ms`);
+                timesAlberto.push([i + 1, b - a]);
+            }
+
+            console.log(`Running Jean's algo`);
+            for (let i = 0; i < totalRuns; i++) {
+                clearEl(svgJean, false);
+                let a = Date.now();
+                await runJean();
+                let b = Date.now();
+                peak = Math.max(peak, (b - a))
+                timesJean.push([i + 1, b - a]);
+                console.log(`Run ${i + 1}: Program ran in: ${b - a} ms`);
+            }
+
+            console.log(`Running Tamzid's algo`);
+            let ell = d3.select(document.getElementById("svgTamzid"), false)
+            for (let i = 0; i < totalRuns; i++) {
+                clearEl(ell);
+                let a = Date.now();
+                await runTamzid();
+                let b = Date.now();
+                peak = Math.max(peak, (b - a))
+                timesTamzid.push([i + 1, b - a]);
+                console.log(`Run ${i + 1}: Program ran in: ${b - a} ms`);
+            }
+
+            // chart stuff
+            const width = 1000;
+            const height = 400;
+            const marginTop = 40;
+            const marginRight = 300;
+            const marginBottom = 150;
+            const marginLeft = 40;
+            let siteColors = ['#8856a7', '#FFD900', '#b2df8a']
+            let start = 1
+            // Declare the x (horizontal position) scale.
+            x = d3.scaleLinear()
+                .domain([start, totalRuns])
+                .range([marginLeft, width - marginRight]);
+
+            // Declare the y (vertical position) scale.
+            y = d3.scaleLinear()
+                .domain([0, Math.ceil(peak) + 100])
+                .range([height - marginBottom, marginTop]);
+            // Create the SVG container.
+            const svg = d3.create("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+
+            // Add the x-axis.
+            svg.append("g")
+                .attr("transform", `translate(0,${height - marginBottom})`)
+                .call(d3.axisBottom(x).tickFormat(d3.format(".0f")));
+
+            // Add the y-axis.
+            svg.append("g")
+                .attr("transform", `translate(${marginLeft},0)`)
+                .call(d3.axisLeft(y));
+
+            // Title Label
+            svg.append('text')
+                .attr('transform', 'translate(' + ((width - marginRight) / 2 + marginLeft) + ', 20)')
+                .attr('text-anchor', 'middle')
+                .style('font-family', 'Helvetica')
+                .style('font-size', 15)
+                .style('font-weight', 'bold')
+                .text('Speed comparison of student programs');
+
+            // X label
+            svg.append('text')
+                .attr('transform', 'translate(' + ((width - marginRight) / 2 + marginLeft) + ',' + ((height - marginBottom) + 40) + ')')
+                .attr('text-anchor', 'middle')
+                .attr('fill', 'white')
+                .style('font-family', 'Helvetica')
+                .style('font-size', 15)
+                .text('Run');
+
+            // Y label
+            svg.append('text')
+                .attr('text-anchor', 'middle')
+                .attr('transform', 'translate(10,' + ((height - marginBottom) / 2 + marginTop) + ')rotate(-90)')
+                .attr('fill', 'white')
+                .style('font-family', 'Helvetica')
+                .style('font-size', 15)
+                .text('Time (Ms)');
+
+            // legend
+            const legend = svg.selectAll(".legend")
+                .data(["Alberto", "Jean", "Tamzid"])
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", (d, i) => siteColors[i]);
+
+            legend.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .attr('fill', 'white')
+                .style("text-anchor", "end")
+                .text(d => d);
+
+            var line = d3.line()
+                .x(function (d) { return x(d[0]); })
+                .y(function (d) { return y(d[1]); })
+                .curve(d3.curveMonotoneX)
+
+            svg.append("path")
+                .datum(timesAlberto)
+                .attr("class", "line")
+                .attr("d", line)
+                .style("fill", "none")
+                .style("stroke", siteColors[0])
+                .style("stroke-width", "2");
+
+            var line = d3.line()
+                .x(function (d) { return x(d[0]); })
+                .y(function (d) { return y(d[1]); })
+                .curve(d3.curveMonotoneX)
+
+            svg.append("path")
+                .datum(timesJean)
+                .attr("class", "line")
+                .attr("d", line)
+                .style("fill", "none")
+                .style("stroke", siteColors[1])
+                .style("stroke-width", "2");
+
+            var line = d3.line()
+                .x(function (d) { return x(d[0]); })
+                .y(function (d) { return y(d[1]); })
+                .curve(d3.curveMonotoneX)
+
+            svg.append("path")
+                .datum(timesTamzid)
+                .attr("class", "line")
+                .attr("d", line)
+                .style("fill", "none")
+                .style("stroke", siteColors[2])
+                .style("stroke-width", "2");
+
+            // Append the SVG element.
+            document.getElementById("chart-container").append(svg.node());
+        }
+        runButton.addEventListener('click', main);
+    </script>
+</body>
+
+</html>
