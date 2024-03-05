@@ -23,10 +23,6 @@
                     <input type="checkbox" id="clear-after-run" name="clear-after-run">
                     <label for="clear-after-run">Clear after run?</label>
                 </div>
-                <div class="option">
-                    <input type="checkbox" id="skip-first-run" name="skip-first-run">
-                    <label for="skip-first-run">Skip first run results?</label>
-                </div>
 
                 <button id="run-button">Run Program</button>
                 <p>After clicking run, wait until chart appears before making changes and running again</p>
@@ -51,15 +47,13 @@
         const totalRunsInput = document.getElementById('total-runs');
         const ballsPerRunInput = document.getElementById('balls-per-run');
         const clearAfterRunCheckbox = document.getElementById('clear-after-run');
-        const skipFirstRunCheckbox = document.getElementById('skip-first-run');
         const runButton = document.getElementById('run-button');
 
         function getOptions() {
             return {
                 totalRuns: parseInt(totalRunsInput.value, 10),
                 ballsPerRun: parseInt(ballsPerRunInput.value, 10),
-                clearAfterRun: clearAfterRunCheckbox.checked,
-                skipFirstRun: skipFirstRunCheckbox.checked
+                clearAfterRun: clearAfterRunCheckbox.checked
             };
         }
 
@@ -76,11 +70,6 @@
         clearAfterRunCheckbox.addEventListener('change', () => {
             const options = getOptions();
             console.log('Clear after Run:', options.clearAfterRun);
-        });
-
-        skipFirstRunCheckbox.addEventListener('change', () => {
-            const options = getOptions();
-            console.log('Skip First Run:', options.skipFirstRun);
         });
 
         // Declare the chart dimensions and margins.
